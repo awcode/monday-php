@@ -4,7 +4,7 @@ A helper package for using the Monday.com API in PHP
 ## Installation
 Install through Composer (currently in Beta, remove dev-master once we move to a stable release)
 
-```composer require "awcode/thai-laravel" "dev-master"```
+```composer require "awcode/monday-php" "dev-master"```
 
 Or manually adding
 
