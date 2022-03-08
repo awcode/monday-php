@@ -1,0 +1,34 @@
+{
+    "name": "awcode/monday-php" ,
+    "type": "library",
+    "description": "A helper package for using Monday.com API" ,
+    "keywords": [
+        "Monday",  "Monday.com",  "monday-api",  "Monday API", "AWcode"
+    ],
+    "require": {
+        "php": "^7.1.3|^8.0",
+        "illuminate/support": "~5.8.0|^6.0|^7.0|^8.0"
+    },
+    "autoload": {
+        "psr-4": { "Awcode\\ThaiLaravel\\" : "src/" }
+    },
+    "authors": [
+        {
+            "name": "awcode",
+            "homepage": "https://awcode.com"
+        },{
+            "name": "Mark Walker"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Awcode\\MondayPHP\\MondayPHPServiceProvider"
+            ],
+            "aliases": {
+                "Monday": "Awcode\\MondayPHP\\MondayPHPFacade"
+            }
+        }
+    },
+    "license": "MIT"
+}
