@@ -1,16 +1,15 @@
 <?php
 namespace Awcode\MondayPHP;
 
-use Awcode\MondayPHP\Helpers\ThaiAddress;
-use Awcode\ThaiLaravel\Helpers\ThaiFormat;
-use Awcode\ThaiLaravel\Helpers\ThaiPhone;
-use Awcode\ThaiLaravel\Helpers\ThaiIdentityCard;
+use Awcode\MondayPHP\Models\Query;
+use Awcode\MondayPHP\Models\Board;
 
 class MondayPHP
 {
     
     private $access_token;
     private $api_endpoint = 'https://api.monday.com/v2/';
+    protected $query;
     
     
     public function __construct($token=''){
@@ -28,7 +27,7 @@ class MondayPHP
         }
     }
     
-    public function request($query){
+    public function request(){
         $this->authorise();
         
         $headers = [
@@ -37,17 +36,38 @@ class MondayPHP
             'Authorization: ' . $this->access_token
         ];
 
-        $query = '{ boards (limit:1) {id name} }';
+        
         $data = @file_get_contents($this->api_endpoint, false, stream_context_create([
           'http' => [
             'method' => 'POST',
             'header' => $headers,
-            'content' => json_encode(['query' => $query]),
+            'content' => json_encode(['query' => $this->query->json()]),
           ]
         ]));
-        $responseContent = json_decode($data, true);
+        $responseContent = json_decode($data);
 
-        echo json_encode($responseContent);
-        return $responseContent;
+        //echo json_encode($responseContent);die();
+        return $responseContent->data;
     }
+    
+    public function getBoards($id=null){
+        $this->query = new Board($id);
+        //$query->setLimit(99);
+        //$query->addField('description');
+        
+        return $this;
+    }
+    public function getItems(){
+        $this->query->addField('items');
+    
+        $data = $this->request();
+        print_r($data->boards[0]->items);die();
+        return $data->boards[0]->items;
+    }
+    
+    public function get(){
+        return $this->request();
+    }
+    
+   
 }
