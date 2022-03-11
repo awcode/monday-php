@@ -4,12 +4,17 @@ namespace Awcode\MondayPHP\Models;
 class Query
 {
     
+    private $access_token;
+    private $api_endpoint = 'https://api.monday.com/v2/';
+    
     protected $limit = 10;
     protected $page = 1;
     protected $scope = '';
     protected $ids = '';
     protected $fields = [];
     protected $available_fields = [];
+    protected $query;
+    public $data;
     
     public function __construct($id=null){
         if($id){
@@ -36,6 +41,48 @@ class Query
         $this->fields = $fields;
     }
     
+    protected function authorise(){
+        if(!$this->access_token){
+            $this->access_token = config('monday.access_token') ?? env('MONDAY_TOKEN');
+        }
+        if(!$this->access_token){
+            die('No Monday.com access token');
+        }
+    }
+    
+    public function request(){
+        $this->authorise();
+        
+        $headers = [
+            'Content-Type: application/json',
+            'User-Agent: AwcodeMondayPHP',
+            'Authorization: ' . $this->access_token
+        ];
+        
+        $data = @file_get_contents($this->api_endpoint, false, stream_context_create([
+          'http' => [
+            'method' => 'POST',
+            'header' => $headers,
+            'content' => json_encode(['query' => $this->json()]),
+          ]
+        ]));
+        $responseContent = json_decode($data);
+        if(!isset($responseContent->data)){echo $this->json(); print_r($responseContent);die();}
+        return $responseContent->data;
+    }
+    
+    public function get(){
+        return $this->data;
+    }
+    
+    public function first(){
+        return $this->data[0];
+    }
+    
+    public function getData(){
+        return $this->data;
+    }
+    
     public function addField($field){
         if(isset($this->available_fields[$field]) && ! in_array($field, $this->fields)){
             $this->fields[] = $field;
@@ -49,15 +96,17 @@ class Query
         }
         $args .=' )';
         
-        $fields = '{';
+        $fields = '';
         foreach($this->fields as $field){
             $fields .= $this->available_fields[$field].' ';
         }
-        $fields .= '}';
+        if($fields){$fields = '{'.$fields.'}';}
         
         $json = '{ '.$this->scope.' '.$args.' '.$fields.'  }';
         
         return $json;
     
     }
+    
+    
 }
