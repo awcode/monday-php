@@ -1,10 +1,10 @@
 # Monday PHP
-A helper package for using the Monday.com API in PHP, including Laravel
+A helper package for using the Monday.com API in PHP, with optional Laravel facades.
 
 ## BETA Package
 Please note this package is currently in Beta.
 
-Full coverage of Monday API is not yet available, but key functionality is ready.
+Full coverage of Monday API is not yet available, but key functionality is ready. Methods and functions may be subject to change.
 
 If you have requirments outside of the current scope either raise an issue or send a pull request
 
@@ -27,6 +27,7 @@ Or manually adding
 
 ```include('vendor/autoload.php');
 // Set MONDAY_TOKEN=your-monday-api-token in Environment Variable or .env file
+
 // Create new Monday Instance
 $monday = new \Awcode\MondayPHP\MondayPHP;
 
