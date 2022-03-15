@@ -43,31 +43,31 @@ class Query
     
     protected function authorise(){
         if(!$this->access_token){
-            $this->access_token = config('monday.access_token') ?? env('MONDAY_TOKEN');
+            $this->access_token = (function_exists('config') && config('monday.access_token')) ? config('monday.access_token') : env('MONDAY_TOKEN');
         }
         if(!$this->access_token){
             die('No Monday.com access token');
         }
     }
     
-    public function request(){
+    public function request($mode = 'query', $args=null){
         $this->authorise();
-        
+        if($args == null){$args = $this->searchArgs();}
         $headers = [
             'Content-Type: application/json',
             'User-Agent: AwcodeMondayPHP',
             'Authorization: ' . $this->access_token
         ];
-        
+        //echo $this->json($mode, $args); die();
         $data = @file_get_contents($this->api_endpoint, false, stream_context_create([
           'http' => [
             'method' => 'POST',
             'header' => $headers,
-            'content' => json_encode(['query' => $this->json()]),
+            'content' => json_encode(['query' => $this->json($mode, $args)]),
           ]
         ]));
         $responseContent = json_decode($data);
-        if(!isset($responseContent->data)){echo $this->json(); print_r($responseContent);die();}
+        if(!isset($responseContent->data)){echo $this->json($mode, $args); print_r($responseContent);die();}
         return $responseContent->data;
     }
     
@@ -87,14 +87,19 @@ class Query
         if(isset($this->available_fields[$field]) && ! in_array($field, $this->fields)){
             $this->fields[] = $field;
         }
+        return $this;
     }
     
-    public function json(){
+    public function searchArgs(){
         $args = '(limit:'.$this->limit.', page:'.$this->page;
         if($this->ids){
             $args .= ', ids: '.(is_array($this->ids) ? implode(' ', $this->ids) : $this->ids) ;
         }
         $args .=' )';
+        return $args;
+    }
+    public function json($mode, $args){
+        
         
         $fields = '';
         foreach($this->fields as $field){
@@ -102,7 +107,7 @@ class Query
         }
         if($fields){$fields = '{'.$fields.'}';}
         
-        $json = '{ '.$this->scope.' '.$args.' '.$fields.'  }';
+        $json = $mode.'{ '.$this->scope.' '.$args.' '.$fields.'  }';
         
         return $json;
     

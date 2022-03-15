@@ -5,13 +5,14 @@ class Board extends Query
 {
 
     protected $scope = 'boards';
-    protected $fields = ['id','name', 'description','owner', 'items'];
+    protected $fields = ['id','name', 'description','owner', 'items', 'groups'];
     protected $available_fields = [
         'id' => 'id',
         'name' => 'name',
         'items' => 'items{name,id}',
         'description' => 'description',
-        'owner' => 'owner{id,name}'
+        'owner' => 'owner{id,name}',
+        'groups' => 'groups{id,title}'
     ];
 
     public function __construct($id=null){
@@ -32,8 +33,28 @@ class Board extends Query
             $arr[] = new Board($board);
         }
         $this->data = $arr;
-        //print_r($arr);die();
+        
         return $this;
+    }
+    
+    public function create($board_name, $board_kind){
+        $this->scope = 'create_board';
+        $data = $this->request('mutation', '(board_name:"'.$board_name.'", board_kind:'.$board_kind.')');
+        return new Board($data->create_board);
+    }
+    
+     public function createItem($item_name, $group_id=''){
+        $item = new Item;
+        
+        return $item->create($this->ids, $item_name, $group_id);
+        
+    }
+    
+    public function createGroup($group_name, $group_id=''){
+        $group = new Group;
+        
+        return $group->create($this->ids, $group_name, $group_id);
+        
     }
 
 
@@ -45,17 +66,14 @@ class Board extends Query
         return $this->data->id;
     }
     
-    public function items(){
-        
-    
+    public function items(){      
         $data = $this->request();
         
         $arr = [];
         foreach($this->data->items as $item){
             $arr[] = new Item($item);
         }
-
-        
+       
         return $arr;
     }
 }

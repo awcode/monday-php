@@ -22,10 +22,9 @@ class MondayPHP
         return $boards;
     }
     
-    public function createBoard($name, $kind='public'){
-        
-    
-    
-    }  
+    public function createBoard($board_name, $board_kind='public'){
+        $board = new Board;
+        return $board->create($board_name, $board_kind);
+    }
 
 }
