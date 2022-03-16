@@ -71,7 +71,7 @@ class Board extends Query
         
         $arr = [];
         foreach($this->data->items as $item){
-            $arr[] = new Item($item);
+            $arr[] = new Item($item, $this->getId());
         }
        
         return $arr;
